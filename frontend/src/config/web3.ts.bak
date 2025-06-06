@@ -1,0 +1,33 @@
+import { getDefaultWallets } from '@rainbow-me/rainbowkit';
+import { createConfig } from 'wagmi';
+import { mainnet, sepolia } from 'wagmi/chains';
+import { http } from 'viem';
+
+// Define available chains based on environment
+const availableChains = process.env.NEXT_PUBLIC_NETWORK === 'mainnet' 
+  ? [mainnet] 
+  : [sepolia]; // Default to sepolia for testnet
+
+// Set up providers
+const transports = {
+  [mainnet.id]: http(),
+  [sepolia.id]: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL 
+    ? http(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL)
+    : http(),
+};
+
+// Set up the RainbowKit wallet connectors
+const { connectors } = getDefaultWallets({
+  appName: 'Decentralized Social Media',
+  projectId: 'decentralized-social-media',
+  chains: availableChains,
+});
+
+// Create wagmi config
+const config = createConfig({
+  chains: availableChains,
+  connectors,
+  transports
+});
+
+export { availableChains as chains, config };
